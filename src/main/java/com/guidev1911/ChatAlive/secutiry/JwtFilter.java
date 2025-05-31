@@ -1,6 +1,5 @@
 package com.guidev1911.ChatAlive.secutiry;
 
-import com.guidev1911.ChatAlive.services.UserService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
+import com.guidev1911.ChatAlive.services.AuthService;
 import java.io.IOException;
 
 @Component
@@ -21,13 +20,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
     @Lazy
-    private UserService userService;
+    private AuthService authService;
 
-    public JwtFilter(@Lazy UserService userService) {
-        this.userService = userService;
-    }
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain chain)
             throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
@@ -37,7 +35,7 @@ public class JwtFilter extends OncePerRequestFilter {
             String email = jwtUtil.extractUsername(token);
 
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                var userDetails = userService.loadUserByUsername(email);
+                var userDetails = authService.loadUserByUsername(email);
 
                 if (jwtUtil.isTokenValid(token)) {
                     UsernamePasswordAuthenticationToken authToken =
@@ -52,3 +50,4 @@ public class JwtFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 }
+

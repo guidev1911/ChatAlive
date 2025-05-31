@@ -1,65 +1,58 @@
 package com.guidev1911.ChatAlive.services;
 
-import java.util.Collections;
-import java.util.Optional;
-
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import com.guidev1911.ChatAlive.dto.UserDTO;
-import com.guidev1911.ChatAlive.dto.UserUpdateDTO;
+import com.guidev1911.ChatAlive.dto.UserProfileDTO;
 import com.guidev1911.ChatAlive.model.User;
 import com.guidev1911.ChatAlive.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 @Service
-public class UserService implements UserDetailsService{
+public class UserService{
 
     @Autowired
-    private UserRepository repo;
+    private UserRepository repository;
 
-    @Autowired
-    private PasswordEncoder encoder;
 
-    public User register(UserDTO dto) {
-        if (repo.existsByEmail(dto.email)) {
-            throw new RuntimeException("Email já cadastrado.");
-        }
-        User user = new User(dto.nome, dto.email, encoder.encode(dto.senha), dto.role);
-        return repo.save(user);
-    }
+    public UserProfileDTO updateOwnProfile(String email, String name, String bio, MultipartFile photoFile) {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-    public Optional<User> findByEmail(String email) {
-        return repo.findByEmail(email);
-    }
-
-    public User updateUser(Long id, UserUpdateDTO dto) {
-        User user = repo.findById(id).orElseThrow();
-        user.setNome(dto.nome);
-        user.setSenha(encoder.encode(dto.senha));
-        return repo.save(user);
-    }
-
-    public void deleteUser(Long id) {
-        repo.deleteById(id);
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Optional<User> userOpt = repo.findByEmail(email);
-
-        if (userOpt.isEmpty()) {
-            throw new UsernameNotFoundException("Usuário não encontrado");
+        if (name != null && !name.trim().isEmpty()) {
+            user.setName(name);
         }
 
-        User user = userOpt.get();
+        if (bio != null && !bio.trim().isEmpty()) {
+            user.setBio(bio);
+        }
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getSenha(),
-                Collections.singletonList(() -> "ROLE_" + user.getRole().name())
-        );
+        if (photoFile != null && !photoFile.isEmpty()) {
+            try {
+                String fileName = UUID.randomUUID() + "_" + photoFile.getOriginalFilename();
+                Path uploadPath = Paths.get("uploads");
+
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+
+                Path filePath = uploadPath.resolve(fileName);
+                Files.copy(photoFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                
+                user.setPhotoUrl("/uploads/" + fileName);
+            } catch (IOException e) {
+                throw new RuntimeException("Erro ao salvar a imagem", e);
+            }
+        }
+
+        repository.save(user);
+
+        return new UserProfileDTO(user.getName(), user.getBio(), user.getPhotoUrl());
     }
 }

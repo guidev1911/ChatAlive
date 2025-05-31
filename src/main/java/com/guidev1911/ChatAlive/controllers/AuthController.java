@@ -2,7 +2,7 @@ package com.guidev1911.ChatAlive.controllers;
 
 import com.guidev1911.ChatAlive.dto.UserDTO;
 import com.guidev1911.ChatAlive.secutiry.JwtUtil;
-import com.guidev1911.ChatAlive.services.UserService;
+import com.guidev1911.ChatAlive.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,14 +16,14 @@ public class AuthController {
     private AuthenticationManager authManager;
 
     @Autowired
-    private UserService userService;
+    private AuthService userService;
 
     @Autowired
     private JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public String login(@RequestBody UserDTO dto) {
-        authManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getSenha()));
+        authManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
         UserDetails userDetails = userService.loadUserByUsername(dto.getEmail());
         return jwtUtil.generateToken(userDetails.getUsername());
     }

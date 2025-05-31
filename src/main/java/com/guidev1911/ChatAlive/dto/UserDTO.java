@@ -3,27 +3,27 @@ package com.guidev1911.ChatAlive.dto;
 import com.guidev1911.ChatAlive.model.Role;
 
 public class UserDTO {
-    public String nome;
+    public String name;
     public String email;
-    public String senha;
+    public String password;
     public Role role;
 
     public UserDTO() {
     }
 
-    public UserDTO(String nome, String email, String senha, Role role) {
-        this.nome = nome;
+    public UserDTO(String name, String email, String password, Role role) {
+        this.name = name;
         this.email = email;
-        this.senha = senha;
+        this.password = password;
         this.role = role;
     }
 
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -34,12 +34,12 @@ public class UserDTO {
         this.email = email;
     }
 
-    public String getSenha() {
-        return senha;
+    public String getPassword() {
+        return password;
     }
 
-    public void setSenha(String senha) {
-        this.senha = senha;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Role getRole() {
