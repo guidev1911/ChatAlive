@@ -17,21 +17,21 @@ public class AuthController {
     private AuthenticationManager authManager;
 
     @Autowired
-    private AuthService userService;
+    private AuthService authService;
 
     @Autowired
     private JwtUtil jwtUtil;
     @PostMapping("/login")
     public TokenResponse login(@RequestBody UserDTO dto) {
         authManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
-        UserDetails userDetails = userService.loadUserByUsername(dto.getEmail());
+        UserDetails userDetails = authService.loadUserByUsername(dto.getEmail());
         String token = jwtUtil.generateToken(userDetails.getUsername());
         return new TokenResponse(token);
     }
 
     @PostMapping("/register")
     public String register(@RequestBody UserDTO dto) {
-        userService.register(dto);
+        authService.register(dto);
         return "Usuário registrado com sucesso!";
     }
 }
