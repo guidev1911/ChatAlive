@@ -1,5 +1,6 @@
 package com.guidev1911.ChatAlive.controllers;
 
+import com.guidev1911.ChatAlive.dto.TokenResponse;
 import com.guidev1911.ChatAlive.dto.UserDTO;
 import com.guidev1911.ChatAlive.secutiry.JwtUtil;
 import com.guidev1911.ChatAlive.services.AuthService;
@@ -20,12 +21,12 @@ public class AuthController {
 
     @Autowired
     private JwtUtil jwtUtil;
-
     @PostMapping("/login")
-    public String login(@RequestBody UserDTO dto) {
+    public TokenResponse login(@RequestBody UserDTO dto) {
         authManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
         UserDetails userDetails = userService.loadUserByUsername(dto.getEmail());
-        return jwtUtil.generateToken(userDetails.getUsername());
+        String token = jwtUtil.generateToken(userDetails.getUsername());
+        return new TokenResponse(token);
     }
 
     @PostMapping("/register")
