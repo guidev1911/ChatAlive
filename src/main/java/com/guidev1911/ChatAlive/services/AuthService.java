@@ -3,7 +3,7 @@ package com.guidev1911.ChatAlive.services;
 import java.util.Collections;
 import java.util.Optional;
 
-import com.guidev1911.ChatAlive.model.Role;
+import com.guidev1911.ChatAlive.Role.UserRole;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import com.guidev1911.ChatAlive.dto.UserDTO;
@@ -28,7 +28,7 @@ public class AuthService implements UserDetailsService{
             throw new RuntimeException("Email já cadastrado.");
         }
 
-        Role role = dto.role != null ? dto.role : Role.USER;
+        UserRole role = dto.role != null ? dto.role : UserRole.USER;
 
         User user = new User(dto.name, dto.email, encoder.encode(dto.password), role);
         return repository.save(user);

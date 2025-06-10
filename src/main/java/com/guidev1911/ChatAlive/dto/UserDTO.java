@@ -1,17 +1,17 @@
 package com.guidev1911.ChatAlive.dto;
 
-import com.guidev1911.ChatAlive.model.Role;
+import com.guidev1911.ChatAlive.Role.UserRole;
 
 public class UserDTO {
     public String name;
     public String email;
     public String password;
-    public Role role;
+    public UserRole role;
 
     public UserDTO() {
     }
 
-    public UserDTO(String name, String email, String password, Role role) {
+    public UserDTO(String name, String email, String password, UserRole role) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -42,11 +42,11 @@ public class UserDTO {
         this.password = password;
     }
 
-    public Role getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(UserRole role) {
         this.role = role;
     }
 }

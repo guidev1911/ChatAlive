@@ -1,10 +1,9 @@
 package com.guidev1911.ChatAlive.model;
 
+import com.guidev1911.ChatAlive.Role.UserRole;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Table;
-
-import jakarta.persistence.*;
 
 import jakarta.persistence.*;
 
@@ -24,7 +23,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private Role role = Role.USER;
+    private UserRole role = UserRole.USER;
     private String bio;
 
     @Column(name = "photo_Url")
@@ -32,7 +31,7 @@ public class User {
 
     public User() {}
 
-    public User(String name, String email, String password, Role role) {
+    public User(String name, String email, String password, UserRole role) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -71,11 +70,11 @@ public class User {
         this.password = password;
     }
 
-    public Role getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(UserRole role) {
         this.role = role;
     }
 
