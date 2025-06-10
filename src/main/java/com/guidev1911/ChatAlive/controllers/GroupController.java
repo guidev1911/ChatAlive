@@ -28,6 +28,38 @@ public class GroupController {
         groupService.joinGroup(user, group);
         return ResponseEntity.ok("Solicitação enviada ou entrada efetuada.");
     }
+    @PostMapping("/{groupId}/approve/{userId}")
+    public ResponseEntity<?> approveMember(
+            @PathVariable Long groupId,
+            @PathVariable Long userId,
+            @AuthenticationPrincipal User approver
+    ) {
+        groupService.approveMemberRequest(groupId, userId, approver);
+        return ResponseEntity.ok("Solicitação aprovada.");
+    }
+
+    @PostMapping("/{groupId}/invite/{userId}")
+    public ResponseEntity<?> inviteUser(
+            @PathVariable Long groupId,
+            @PathVariable Long userId,
+            @AuthenticationPrincipal User inviter
+    ) {
+        Group group = groupService.getById(groupId);
+        User invitee = new User(); invitee.setId(userId);
+        groupService.inviteUserToGroup(group, inviter, invitee);
+        return ResponseEntity.ok("Usuário convidado.");
+    }
+
+    @DeleteMapping("/{groupId}/remove/{userId}")
+    public ResponseEntity<?> removeUser(
+            @PathVariable Long groupId,
+            @PathVariable Long userId,
+            @AuthenticationPrincipal User remover
+    ) {
+        groupService.removeMember(groupId, userId, remover);
+        return ResponseEntity.ok("Usuário removido do grupo.");
+    }
+
 
 }
 

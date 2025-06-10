@@ -76,4 +76,60 @@ public class GroupService {
                 .orElseThrow(() -> new RuntimeException("Grupo não encontrado com ID: " + groupId));
     }
 
+    public void approveMemberRequest(Long groupId, Long userIdToApprove, User approver) {
+        Group group = getById(groupId);
+
+        GroupMembership approverMembership = membershipRepository.findByGroupAndUser(group, approver)
+                .orElseThrow(() -> new RuntimeException("Ação não permitida"));
+
+        if (approverMembership.getRole() == GroupRole.MEMBER)
+            throw new RuntimeException("Apenas criador ou administrador podem aprovar membros.");
+
+        GroupMembership pending = membershipRepository.findByGroupAndUser(group, new User() {{ setId(userIdToApprove); }})
+                .orElseThrow(() -> new RuntimeException("Solicitação não encontrada"));
+
+        if (!pending.isPendingRequest())
+            throw new RuntimeException("Este usuário já é membro ou foi aprovado.");
+
+        pending.setPendingRequest(false);
+        membershipRepository.save(pending);
+    }
+
+    public void inviteUserToGroup(Group group, User inviter, User invitee) {
+        GroupMembership inviterMembership = membershipRepository.findByGroupAndUser(group, inviter)
+                .orElseThrow(() -> new RuntimeException("Você não pertence a esse grupo"));
+
+        if (inviterMembership.getRole() == GroupRole.MEMBER)
+            throw new RuntimeException("Apenas criador ou administrador podem convidar.");
+
+        boolean alreadyMember = membershipRepository.findByGroupAndUser(group, invitee).isPresent();
+        if (alreadyMember)
+            throw new RuntimeException("Usuário já está no grupo.");
+
+        GroupMembership membership = new GroupMembership();
+        membership.setGroup(group);
+        membership.setUser(invitee);
+        membership.setRole(GroupRole.MEMBER);
+        membership.setPendingRequest(false);
+
+        membershipRepository.save(membership);
+    }
+
+    public void removeMember(Long groupId, Long targetUserId, User currentUser) {
+        Group group = getById(groupId);
+
+        GroupMembership currentMembership = membershipRepository.findByGroupAndUser(group, currentUser)
+                .orElseThrow(() -> new RuntimeException("Você não está no grupo"));
+
+        GroupMembership targetMembership = membershipRepository.findByGroupAndUser(group, new User() {{ setId(targetUserId); }})
+                .orElseThrow(() -> new RuntimeException("Usuário alvo não está no grupo"));
+
+        if (!canRemove(currentUser, targetMembership)) {
+            throw new RuntimeException("Você não tem permissão para remover este membro.");
+        }
+
+        membershipRepository.delete(targetMembership);
+    }
+
+
 }
