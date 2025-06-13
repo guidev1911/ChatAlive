@@ -7,17 +7,25 @@ import com.guidev1911.ChatAlive.model.GroupMembership;
 import com.guidev1911.ChatAlive.model.User;
 import com.guidev1911.ChatAlive.repository.GroupMembershipRepository;
 import com.guidev1911.ChatAlive.repository.GroupRepository;
+import com.guidev1911.ChatAlive.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GroupService {
 
     @Autowired
+    private UserRepository userRepository;
+    @Autowired
     private GroupRepository groupRepository;
     @Autowired private GroupMembershipRepository membershipRepository;
 
-    public Group createGroup(String name, GroupPrivacy privacy, User creator) {
+    public Group createGroup(String name, GroupPrivacy privacy) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User creator = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
         Group group = new Group();
         group.setName(name);
         group.setPrivacy(privacy);
@@ -32,29 +40,30 @@ public class GroupService {
         membership.setPendingRequest(false);
 
         membershipRepository.save(membership);
+
         return group;
     }
+    public void joinGroup(String email, Long groupId) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-    public void joinGroup(User user, Group group) {
+        Group group = getById(groupId);
+
+        GroupMembership membership = new GroupMembership();
+        membership.setGroup(group);
+        membership.setUser(user);
+        membership.setRole(GroupRole.MEMBER);
+
         if (group.getPrivacy() == GroupPrivacy.PUBLIC) {
-            GroupMembership membership = new GroupMembership();
-            membership.setGroup(group);
-            membership.setUser(user);
-            membership.setRole(GroupRole.MEMBER);
             membership.setPendingRequest(false);
-            membershipRepository.save(membership);
         } else if (group.getPrivacy() == GroupPrivacy.PRIVATE) {
-            GroupMembership membership = new GroupMembership();
-            membership.setGroup(group);
-            membership.setUser(user);
-            membership.setRole(GroupRole.MEMBER);
             membership.setPendingRequest(true);
-            membershipRepository.save(membership);
         } else {
             throw new IllegalStateException("Este grupo só permite entrada por convite.");
         }
-    }
 
+        membershipRepository.save(membership);
+    }
     public boolean canRemove(User currentUser, GroupMembership targetMembership) {
         GroupMembership currentMembership = membershipRepository.findByGroupAndUser(
                 targetMembership.getGroup(), currentUser

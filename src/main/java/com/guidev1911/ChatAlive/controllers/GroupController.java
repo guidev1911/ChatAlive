@@ -7,6 +7,7 @@ import com.guidev1911.ChatAlive.services.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,15 +18,16 @@ public class GroupController {
     private GroupService groupService;
 
     @PostMapping
-    public ResponseEntity<Group> createGroup(@RequestBody CreateGroupRequest request, @AuthenticationPrincipal User user) {
-        Group group = groupService.createGroup(request.getName(), request.getPrivacy(), user);
+    public ResponseEntity<Group> createGroup(@RequestBody CreateGroupRequest request) {
+        Group group = groupService.createGroup(request.getName(), request.getPrivacy());
         return ResponseEntity.ok(group);
     }
-
     @PostMapping("/{groupId}/join")
-    public ResponseEntity<String> joinGroup(@PathVariable Long groupId, @AuthenticationPrincipal User user) {
-        Group group = groupService.getById(groupId);
-        groupService.joinGroup(user, group);
+    public ResponseEntity<String> joinGroup(
+            @PathVariable Long groupId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        groupService.joinGroup(userDetails.getUsername(), groupId);
         return ResponseEntity.ok("Solicitação enviada ou entrada efetuada.");
     }
     @PostMapping("/{groupId}/approve/{userId}")

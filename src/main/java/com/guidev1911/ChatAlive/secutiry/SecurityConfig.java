@@ -41,4 +41,17 @@ public class SecurityConfig {
 
         return http.build();
     }
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(csrf -> csrf.disable())
+//                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("/auth/**", "/groups/*/join").permitAll() // adiciona aqui
+//                        .anyRequest().authenticated()
+//                )
+//                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+//
+//        return http.build();
+//    }
 }

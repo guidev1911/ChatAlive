@@ -22,6 +22,7 @@ public class Group {
     private GroupPrivacy privacy;
 
     @ManyToOne
+    @JoinColumn(name = "creator_id")
     private User creator;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
