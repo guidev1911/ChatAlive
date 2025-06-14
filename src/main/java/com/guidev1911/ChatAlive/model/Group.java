@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "chat_groups")
@@ -69,5 +70,18 @@ public class Group {
 
     public void setMembers(List<GroupMembership> members) {
         this.members = members;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Group group = (Group) o;
+        return Objects.equals(getId(), group.getId()) && Objects.equals(getName(), group.getName()) && getPrivacy() == group.getPrivacy() && Objects.equals(getCreator(), group.getCreator()) && Objects.equals(getMembers(), group.getMembers());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName(), getPrivacy(), getCreator(), getMembers());
     }
 }

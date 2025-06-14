@@ -39,7 +39,15 @@ public class GroupController {
         groupService.approveMemberRequest(groupId, userId, userDetails.getUsername());
         return ResponseEntity.ok("Solicitação aprovada.");
     }
-
+    @DeleteMapping("/{groupId}/reject/{userId}")
+    public ResponseEntity<String> rejectMember(
+            @PathVariable Long groupId,
+            @PathVariable Long userId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        groupService.rejectMemberRequest(groupId, userId, userDetails.getUsername());
+        return ResponseEntity.ok("Solicitação rejeitada com sucesso.");
+    }
     @PostMapping("/{groupId}/invite/{userId}")
     public ResponseEntity<?> inviteUser(
             @PathVariable Long groupId,

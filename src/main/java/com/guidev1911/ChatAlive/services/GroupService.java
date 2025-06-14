@@ -109,7 +109,31 @@ public class GroupService {
         pending.setPendingRequest(false);
         membershipRepository.save(pending);
     }
+    public void rejectMemberRequest(Long groupId, Long userIdToReject, String approverEmail) {
+        Group group = getById(groupId);
+        User approver = userRepository.findByEmail(approverEmail)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
+        GroupMembership approverMembership = membershipRepository.findByGroupAndUser(group, approver)
+                .orElseThrow(() -> new RuntimeException("Ação não permitida"));
+
+        if (approverMembership.getRole() == GroupRole.MEMBER) {
+            throw new RuntimeException("Apenas criador ou administrador podem rejeitar membros.");
+        }
+
+        User userToReject = userRepository.findById(userIdToReject)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+
+        GroupMembership pending = membershipRepository.findByGroupAndUser(group, userToReject)
+                .orElseThrow(() -> new RuntimeException("Solicitação não encontrada"));
+
+        if (!pending.isPendingRequest()) {
+            throw new RuntimeException("Este usuário já é membro ou não tem solicitação pendente.");
+        }
+        System.out.println("Approver ID: " + approver.getId());
+        System.out.println("Group ID: " + group.getId());
+        membershipRepository.delete(pending);
+    }
     public void inviteUserToGroup(Group group, User inviter, User invitee) {
         GroupMembership inviterMembership = membershipRepository.findByGroupAndUser(group, inviter)
                 .orElseThrow(() -> new RuntimeException("Você não pertence a esse grupo"));
