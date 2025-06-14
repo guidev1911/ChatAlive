@@ -85,16 +85,22 @@ public class GroupService {
                 .orElseThrow(() -> new RuntimeException("Grupo não encontrado com ID: " + groupId));
     }
 
-    public void approveMemberRequest(Long groupId, Long userIdToApprove, User approver) {
+    public void approveMemberRequest(Long groupId, Long userIdToApprove, String approverEmail) {
         Group group = getById(groupId);
+        User approver = userRepository.findByEmail(approverEmail)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         GroupMembership approverMembership = membershipRepository.findByGroupAndUser(group, approver)
                 .orElseThrow(() -> new RuntimeException("Ação não permitida"));
-
+        if (group.getPrivacy() == GroupPrivacy.CLOSED) {
+            throw new RuntimeException("Este grupo é fechado. Só é possível entrar por convite de um administrador.");
+        }
         if (approverMembership.getRole() == GroupRole.MEMBER)
             throw new RuntimeException("Apenas criador ou administrador podem aprovar membros.");
 
-        GroupMembership pending = membershipRepository.findByGroupAndUser(group, new User() {{ setId(userIdToApprove); }})
+        User userToApprove = new User();
+        userToApprove.setId(userIdToApprove);
+        GroupMembership pending = membershipRepository.findByGroupAndUser(group, userToApprove)
                 .orElseThrow(() -> new RuntimeException("Solicitação não encontrada"));
 
         if (!pending.isPendingRequest())

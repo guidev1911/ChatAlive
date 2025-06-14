@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 public class GroupMembership {
 
@@ -64,5 +66,18 @@ public class GroupMembership {
 
     public void setPendingRequest(boolean pendingRequest) {
         this.pendingRequest = pendingRequest;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupMembership that = (GroupMembership) o;
+        return isPendingRequest() == that.isPendingRequest() && Objects.equals(getId(), that.getId()) && Objects.equals(getGroup(), that.getGroup()) && Objects.equals(getUser(), that.getUser()) && getRole() == that.getRole();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getGroup(), getUser(), getRole(), isPendingRequest());
     }
 }

@@ -34,9 +34,9 @@ public class GroupController {
     public ResponseEntity<?> approveMember(
             @PathVariable Long groupId,
             @PathVariable Long userId,
-            @AuthenticationPrincipal User approver
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-        groupService.approveMemberRequest(groupId, userId, approver);
+        groupService.approveMemberRequest(groupId, userId, userDetails.getUsername());
         return ResponseEntity.ok("Solicitação aprovada.");
     }
 
