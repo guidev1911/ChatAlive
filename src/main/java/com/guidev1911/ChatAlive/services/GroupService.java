@@ -23,8 +23,7 @@ public class GroupService {
 
     public Group createGroup(String name, GroupPrivacy privacy) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User creator = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        User creator = VerificationByEmail(email);
 
         Group group = new Group();
         group.setName(name);
@@ -44,8 +43,7 @@ public class GroupService {
         return group;
     }
     public void joinGroup(String email, Long groupId) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        User user = VerificationByEmail(email);
 
         Group group = getById(groupId);
 
@@ -87,8 +85,7 @@ public class GroupService {
 
     public void approveMemberRequest(Long groupId, Long userIdToApprove, String approverEmail) {
         Group group = getById(groupId);
-        User approver = userRepository.findByEmail(approverEmail)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        User approver = VerificationByEmail(approverEmail);
 
         GroupMembership approverMembership = membershipRepository.findByGroupAndUser(group, approver)
                 .orElseThrow(() -> new RuntimeException("Ação não permitida"));
@@ -111,8 +108,7 @@ public class GroupService {
     }
     public void rejectMemberRequest(Long groupId, Long userIdToReject, String approverEmail) {
         Group group = getById(groupId);
-        User approver = userRepository.findByEmail(approverEmail)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        User approver = VerificationByEmail(approverEmail);
 
         GroupMembership approverMembership = membershipRepository.findByGroupAndUser(group, approver)
                 .orElseThrow(() -> new RuntimeException("Ação não permitida"));
@@ -169,6 +165,9 @@ public class GroupService {
 
         membershipRepository.delete(targetMembership);
     }
-
+    private User VerificationByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    }
 
 }
