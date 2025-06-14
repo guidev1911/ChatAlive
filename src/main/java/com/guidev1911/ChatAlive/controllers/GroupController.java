@@ -1,5 +1,6 @@
 package com.guidev1911.ChatAlive.controllers;
 
+import com.guidev1911.ChatAlive.dto.ApiResponse;
 import com.guidev1911.ChatAlive.dto.CreateGroupRequest;
 import com.guidev1911.ChatAlive.model.Group;
 import com.guidev1911.ChatAlive.model.User;
@@ -23,12 +24,12 @@ public class GroupController {
         return ResponseEntity.ok(group);
     }
     @PostMapping("/{groupId}/join")
-    public ResponseEntity<String> joinGroup(
+    public ResponseEntity<ApiResponse> joinGroup(
             @PathVariable Long groupId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        groupService.joinGroup(userDetails.getUsername(), groupId);
-        return ResponseEntity.ok("Solicitação enviada ou entrada efetuada.");
+        ApiResponse response = groupService.joinGroup(userDetails.getUsername(), groupId);
+        return ResponseEntity.ok(response);
     }
     @PostMapping("/{groupId}/approve/{userId}")
     public ResponseEntity<?> approveMember(

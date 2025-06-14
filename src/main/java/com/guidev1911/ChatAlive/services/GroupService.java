@@ -2,6 +2,7 @@ package com.guidev1911.ChatAlive.services;
 
 import com.guidev1911.ChatAlive.Role.GroupPrivacy;
 import com.guidev1911.ChatAlive.Role.GroupRole;
+import com.guidev1911.ChatAlive.dto.ApiResponse;
 import com.guidev1911.ChatAlive.model.Group;
 import com.guidev1911.ChatAlive.model.GroupMembership;
 import com.guidev1911.ChatAlive.model.User;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class GroupService {
 
@@ -19,7 +22,8 @@ public class GroupService {
     private UserRepository userRepository;
     @Autowired
     private GroupRepository groupRepository;
-    @Autowired private GroupMembershipRepository membershipRepository;
+    @Autowired
+    private GroupMembershipRepository membershipRepository;
 
     public Group createGroup(String name, GroupPrivacy privacy) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -42,10 +46,13 @@ public class GroupService {
 
         return group;
     }
-    public void joinGroup(String email, Long groupId) {
+    public ApiResponse joinGroup(String email, Long groupId) {
         User user = VerificationByEmail(email);
-
         Group group = getById(groupId);
+
+        if (membershipRepository.findByGroupAndUser(group, user).isPresent()) {
+            return new ApiResponse(false, "Você já é membro ou já enviou solicitação para este grupo.");
+        }
 
         GroupMembership membership = new GroupMembership();
         membership.setGroup(group);
@@ -54,14 +61,17 @@ public class GroupService {
 
         if (group.getPrivacy() == GroupPrivacy.PUBLIC) {
             membership.setPendingRequest(false);
+            membershipRepository.save(membership);
+            return new ApiResponse(true, "Você entrou no grupo com sucesso.");
         } else if (group.getPrivacy() == GroupPrivacy.PRIVATE) {
             membership.setPendingRequest(true);
+            membershipRepository.save(membership);
+            return new ApiResponse(true, "Solicitação de entrada enviada com sucesso.");
         } else {
             throw new IllegalStateException("Este grupo só permite entrada por convite.");
         }
-
-        membershipRepository.save(membership);
     }
+
     public boolean canRemove(User currentUser, GroupMembership targetMembership) {
         GroupMembership currentMembership = membershipRepository.findByGroupAndUser(
                 targetMembership.getGroup(), currentUser
@@ -77,10 +87,6 @@ public class GroupService {
             default:
                 return false;
         }
-    }
-    public Group getById(Long groupId) {
-        return groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Grupo não encontrado com ID: " + groupId));
     }
 
     public void approveMemberRequest(Long groupId, Long userIdToApprove, String approverEmail) {
@@ -126,8 +132,6 @@ public class GroupService {
         if (!pending.isPendingRequest()) {
             throw new RuntimeException("Este usuário já é membro ou não tem solicitação pendente.");
         }
-        System.out.println("Approver ID: " + approver.getId());
-        System.out.println("Group ID: " + group.getId());
         membershipRepository.delete(pending);
     }
     public void inviteUserToGroup(Group group, User inviter, User invitee) {
@@ -164,6 +168,11 @@ public class GroupService {
         }
 
         membershipRepository.delete(targetMembership);
+    }
+
+    public Group getById(Long groupId) {
+        return groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Grupo não encontrado com ID: " + groupId));
     }
     private User VerificationByEmail(String email) {
         return userRepository.findByEmail(email)
