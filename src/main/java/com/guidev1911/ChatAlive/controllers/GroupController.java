@@ -19,9 +19,9 @@ public class GroupController {
     private GroupService groupService;
 
     @PostMapping
-    public ResponseEntity<Group> createGroup(@RequestBody CreateGroupRequest request) {
+    public ResponseEntity<ApiResponse> createGroup(@RequestBody CreateGroupRequest request) {
         Group group = groupService.createGroup(request.getName(), request.getPrivacy());
-        return ResponseEntity.ok(group);
+        return ResponseEntity.ok(new ApiResponse(true, "Grupo criado com sucesso"));
     }
     @PostMapping("/{groupId}/join")
     public ResponseEntity<ApiResponse> joinGroup(
@@ -32,22 +32,22 @@ public class GroupController {
         return ResponseEntity.ok(response);
     }
     @PostMapping("/{groupId}/approve/{userId}")
-    public ResponseEntity<?> approveMember(
+    public ResponseEntity<ApiResponse> approveMember(
             @PathVariable Long groupId,
             @PathVariable Long userId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         groupService.approveMemberRequest(groupId, userId, userDetails.getUsername());
-        return ResponseEntity.ok("Solicitação aprovada.");
+        return ResponseEntity.ok(new ApiResponse(true, "Solicitação aprovada."));
     }
     @DeleteMapping("/{groupId}/reject/{userId}")
-    public ResponseEntity<String> rejectMember(
+    public ResponseEntity<ApiResponse> rejectMember(
             @PathVariable Long groupId,
             @PathVariable Long userId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         groupService.rejectMemberRequest(groupId, userId, userDetails.getUsername());
-        return ResponseEntity.ok("Solicitação rejeitada com sucesso.");
+        return ResponseEntity.ok(new ApiResponse(true, "Solicitação rejeitada."));
     }
     @PostMapping("/{groupId}/invite/{userId}")
     public ResponseEntity<?> inviteUser(

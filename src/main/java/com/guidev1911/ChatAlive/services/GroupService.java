@@ -3,6 +3,11 @@ package com.guidev1911.ChatAlive.services;
 import com.guidev1911.ChatAlive.Role.GroupPrivacy;
 import com.guidev1911.ChatAlive.Role.GroupRole;
 import com.guidev1911.ChatAlive.dto.ApiResponse;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupAccessException;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupAlreadyExistsException;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupNotFoundException;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupRequestException;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.userExceptions.UserNotFoundException;
 import com.guidev1911.ChatAlive.model.Group;
 import com.guidev1911.ChatAlive.model.GroupMembership;
 import com.guidev1911.ChatAlive.model.User;
@@ -12,8 +17,6 @@ import com.guidev1911.ChatAlive.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class GroupService {
@@ -28,6 +31,10 @@ public class GroupService {
     public Group createGroup(String name, GroupPrivacy privacy) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User creator = VerificationByEmail(email);
+
+        if (groupRepository.findByName(name).isPresent()) {
+            throw new GroupAlreadyExistsException("Já existe um grupo com este nome.");
+        }
 
         Group group = new Group();
         group.setName(name);
@@ -46,12 +53,13 @@ public class GroupService {
 
         return group;
     }
+
     public ApiResponse joinGroup(String email, Long groupId) {
         User user = VerificationByEmail(email);
         Group group = getById(groupId);
 
         if (membershipRepository.findByGroupAndUser(group, user).isPresent()) {
-            return new ApiResponse(false, "Você já é membro ou já enviou solicitação para este grupo.");
+            throw new GroupRequestException("Você já é membro ou já enviou solicitação para este grupo.");
         }
 
         GroupMembership membership = new GroupMembership();
@@ -68,7 +76,8 @@ public class GroupService {
             membershipRepository.save(membership);
             return new ApiResponse(true, "Solicitação de entrada enviada com sucesso.");
         } else {
-            throw new IllegalStateException("Este grupo só permite entrada por convite.");
+            // Troque IllegalStateException por GroupAccessException (acesso negado)
+            throw new GroupAccessException("Este grupo só permite entrada por convite.");
         }
     }
 
@@ -93,22 +102,23 @@ public class GroupService {
         Group group = getById(groupId);
         User approver = VerificationByEmail(approverEmail);
 
-        GroupMembership approverMembership = membershipRepository.findByGroupAndUser(group, approver)
-                .orElseThrow(() -> new RuntimeException("Ação não permitida"));
         if (group.getPrivacy() == GroupPrivacy.CLOSED) {
-            throw new RuntimeException("Este grupo é fechado. Só é possível entrar por convite de um administrador.");
+            throw new GroupAccessException("Este grupo é fechado. Só é possível entrar por convite de um administrador.");
         }
-        if (approverMembership.getRole() == GroupRole.MEMBER)
-            throw new RuntimeException("Apenas criador ou administrador podem aprovar membros.");
+        GroupMembership approverMembership = membershipRepository.findByGroupAndUser(group, approver)
+                .orElseThrow(() -> new GroupAccessException("Você não tem permissão para aprovar membros."));
+        if (approverMembership.getRole() == GroupRole.MEMBER) {
+            throw new GroupAccessException("Apenas criador ou administrador podem aprovar membros.");
+        }
+        User userToApprove = userRepository.findById(userIdToApprove)
+                .orElseThrow(() -> new UserNotFoundException("Usuário a ser aprovado não encontrado."));
 
-        User userToApprove = new User();
-        userToApprove.setId(userIdToApprove);
         GroupMembership pending = membershipRepository.findByGroupAndUser(group, userToApprove)
-                .orElseThrow(() -> new RuntimeException("Solicitação não encontrada"));
+                .orElseThrow(() -> new GroupRequestException("Solicitação de entrada não encontrada."));
 
-        if (!pending.isPendingRequest())
-            throw new RuntimeException("Este usuário já é membro ou foi aprovado.");
-
+        if (!pending.isPendingRequest()) {
+            throw new GroupRequestException("Este usuário já é membro ou sua solicitação já foi aprovada.");
+        }
         pending.setPendingRequest(false);
         membershipRepository.save(pending);
     }
@@ -117,21 +127,22 @@ public class GroupService {
         User approver = VerificationByEmail(approverEmail);
 
         GroupMembership approverMembership = membershipRepository.findByGroupAndUser(group, approver)
-                .orElseThrow(() -> new RuntimeException("Ação não permitida"));
+                .orElseThrow(() -> new GroupAccessException("Você não tem permissão para rejeitar membros."));
 
         if (approverMembership.getRole() == GroupRole.MEMBER) {
-            throw new RuntimeException("Apenas criador ou administrador podem rejeitar membros.");
+            throw new GroupAccessException("Apenas criador ou administrador podem rejeitar membros.");
         }
 
         User userToReject = userRepository.findById(userIdToReject)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+                .orElseThrow(() -> new UserNotFoundException("Usuário a ser rejeitado não encontrado."));
 
         GroupMembership pending = membershipRepository.findByGroupAndUser(group, userToReject)
-                .orElseThrow(() -> new RuntimeException("Solicitação não encontrada"));
+                .orElseThrow(() -> new GroupRequestException("Solicitação de entrada não encontrada."));
 
         if (!pending.isPendingRequest()) {
-            throw new RuntimeException("Este usuário já é membro ou não tem solicitação pendente.");
+            throw new GroupRequestException("Este usuário já é membro ou sua solicitação já foi processada.");
         }
+
         membershipRepository.delete(pending);
     }
     public void inviteUserToGroup(Group group, User inviter, User invitee) {
@@ -172,11 +183,12 @@ public class GroupService {
 
     public Group getById(Long groupId) {
         return groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Grupo não encontrado com ID: " + groupId));
+                .orElseThrow(() -> new GroupNotFoundException("Grupo não encontrado com ID: " + groupId));
     }
+
     private User VerificationByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com o email: " + email));
     }
 
 }
