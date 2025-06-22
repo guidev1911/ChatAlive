@@ -1,9 +1,14 @@
 package com.guidev1911.ChatAlive.services;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Random;
 
 import com.guidev1911.ChatAlive.Role.UserRole;
+import com.guidev1911.ChatAlive.model.PendingUser;
+import com.guidev1911.ChatAlive.repository.PendingUserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import com.guidev1911.ChatAlive.dto.UserDTO;
@@ -23,14 +28,47 @@ public class AuthService implements UserDetailsService{
     @Autowired
     private PasswordEncoder encoder;
 
-    public User register(UserDTO dto) {
+    @Autowired
+    private PendingUserRepository pendingUserRepository;
+
+    @Autowired
+    private EmailService emailService;
+
+    public void register(UserDTO dto) {
         if (repository.existsByEmail(dto.email)) {
             throw new RuntimeException("Email já cadastrado.");
         }
 
-        UserRole role = dto.role != null ? dto.role : UserRole.USER;
+        if (pendingUserRepository.findByEmail(dto.email).isPresent()) {
+            throw new RuntimeException("Já existe um código de confirmação pendente para esse e-mail.");
+        }
 
-        User user = new User(dto.name, dto.email, encoder.encode(dto.password), role);
+        String confirmationCode = String.valueOf(new Random().nextInt(900000) + 100000);
+
+        PendingUser pending = new PendingUser();
+        pending.setName(dto.name);
+        pending.setEmail(dto.email);
+        pending.setEncodedPassword(encoder.encode(dto.password));
+        pending.setRole(dto.role != null ? dto.role : UserRole.USER);
+        pending.setConfirmationCode(confirmationCode);
+        pending.setExpirationTime(LocalDateTime.now().plusMinutes(5));
+
+        pendingUserRepository.save(pending);
+        emailService.sendConfirmationEmail(dto.email, confirmationCode);
+    }
+
+    @Transactional
+    public User confirmEmail(String email, String code) {
+        PendingUser pending = pendingUserRepository
+                .findByEmailAndConfirmationCode(email, code)
+                .orElseThrow(() -> new RuntimeException("Código inválido ou e-mail incorreto."));
+
+        if (pending.getExpirationTime().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Código expirado.");
+        }
+
+        User user = new User(pending.getName(), pending.getEmail(), pending.getEncodedPassword(), pending.getRole());
+        pendingUserRepository.deleteByEmail(email);
         return repository.save(user);
     }
 

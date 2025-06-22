@@ -76,7 +76,6 @@ public class GroupService {
             membershipRepository.save(membership);
             return new ApiResponse(true, "Solicitação de entrada enviada com sucesso.");
         } else {
-            // Troque IllegalStateException por GroupAccessException (acesso negado)
             throw new GroupAccessException("Este grupo só permite entrada por convite.");
         }
     }
