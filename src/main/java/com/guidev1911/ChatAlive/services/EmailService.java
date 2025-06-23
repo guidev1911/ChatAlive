@@ -23,4 +23,17 @@ public class EmailService {
                 "Atenciosamente,\nEquipe ChatAlive");
         mailSender.send(message);
     }
+    public void sendResetCode(String to, String code) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Redefinição de Senha - ChatAlive");
+        message.setText("Olá,\n\n" +
+                "Recebemos uma solicitação para redefinir a senha da sua conta no ChatAlive.\n\n" +
+                "Seu código de verificação para redefinição de senha é: " + code + "\n\n" +
+                "⚠️ Este código é válido por apenas 5 minutos.\n" +
+                "Caso você não tenha solicitado a redefinição de senha, por favor ignore esta mensagem.\n\n" +
+                "Atenciosamente,\nEquipe ChatAlive");
+
+        mailSender.send(message);
+    }
 }
