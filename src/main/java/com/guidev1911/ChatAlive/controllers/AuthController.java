@@ -1,5 +1,6 @@
 package com.guidev1911.ChatAlive.controllers;
 
+import com.guidev1911.ChatAlive.dto.ApiResponse;
 import com.guidev1911.ChatAlive.dto.ConfirmCodeDTO;
 import com.guidev1911.ChatAlive.dto.TokenResponse;
 import com.guidev1911.ChatAlive.dto.UserDTO;
@@ -31,14 +32,14 @@ public class AuthController {
         return new TokenResponse(token);
     }
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody UserDTO dto) {
+    public ResponseEntity<ApiResponse> register(@RequestBody UserDTO dto) {
         authService.register(dto);
-        return ResponseEntity.ok("Código de confirmação enviado para seu e-mail.");
+        return ResponseEntity.ok(new ApiResponse(true,"Código de confirmação enviado para seu e-mail."));
     }
     @PostMapping("/confirm")
-    public ResponseEntity<String> confirm(@RequestBody ConfirmCodeDTO confirmDTO) {
+    public ResponseEntity<ApiResponse> confirm(@RequestBody ConfirmCodeDTO confirmDTO) {
         authService.confirmEmail(confirmDTO.getEmail(), confirmDTO.getCode());
-        return ResponseEntity.ok("Usuário registrado com sucesso!");
+        return ResponseEntity.ok(new ApiResponse(true,"Usuário registrado com sucesso!"));
     }
 
 
