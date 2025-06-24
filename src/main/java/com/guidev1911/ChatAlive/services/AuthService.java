@@ -6,6 +6,10 @@ import java.util.Optional;
 import java.util.Random;
 
 import com.guidev1911.ChatAlive.Role.UserRole;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.ConfirmationCodeAlreadySentException;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.ConfirmationCodeExpiredException;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.EmailAlreadyRegisteredException;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.InvalidConfirmationCodeException;
 import com.guidev1911.ChatAlive.model.PendingUser;
 import com.guidev1911.ChatAlive.repository.PendingUserRepository;
 import jakarta.transaction.Transactional;
@@ -36,11 +40,11 @@ public class AuthService implements UserDetailsService{
 
     public void register(UserDTO dto) {
         if (repository.existsByEmail(dto.email)) {
-            throw new RuntimeException("Email já cadastrado.");
+            throw new EmailAlreadyRegisteredException("Email já cadastrado.");
         }
 
         if (pendingUserRepository.findByEmail(dto.email).isPresent()) {
-            throw new RuntimeException("Já existe um código de confirmação pendente para esse e-mail.");
+            throw new ConfirmationCodeAlreadySentException("Já existe um código de confirmação pendente para esse e-mail, Aguarde 5 minutos e tente novamente.");
         }
 
         String confirmationCode = String.valueOf(new Random().nextInt(900000) + 100000);
@@ -61,10 +65,10 @@ public class AuthService implements UserDetailsService{
     public User confirmEmail(String email, String code) {
         PendingUser pending = pendingUserRepository
                 .findByEmailAndConfirmationCode(email, code)
-                .orElseThrow(() -> new RuntimeException("Código inválido ou e-mail incorreto."));
+                .orElseThrow(() -> new InvalidConfirmationCodeException("Código inválido ou e-mail incorreto."));
 
         if (pending.getExpirationTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Código expirado.");
+            throw new ConfirmationCodeExpiredException("Código expirado.");
         }
 
         User user = new User(pending.getName(), pending.getEmail(), pending.getEncodedPassword(), pending.getRole());

@@ -1,6 +1,10 @@
 package com.guidev1911.ChatAlive.exception.global;
 
 import com.guidev1911.ChatAlive.dto.ApiResponse;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.ConfirmationCodeAlreadySentException;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.ConfirmationCodeExpiredException;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.EmailAlreadyRegisteredException;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.InvalidConfirmationCodeException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupAccessException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupAlreadyExistsException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupNotFoundException;
@@ -49,6 +53,28 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ApiResponse(false, ex.getMessage()));
     }
+    @ExceptionHandler(EmailAlreadyRegisteredException.class)
+    public ResponseEntity<ApiResponse> handleEmailAlreadyRegistered(EmailAlreadyRegisteredException ex) {
+        return ResponseEntity.badRequest().body(new ApiResponse(false, ex.getMessage()));
+    }
+
+    @ExceptionHandler(ConfirmationCodeAlreadySentException.class)
+    public ResponseEntity<ApiResponse> handleConfirmationCodeAlreadySent(ConfirmationCodeAlreadySentException ex) {
+        return ResponseEntity.badRequest().body(new ApiResponse(false, ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidConfirmationCodeException.class)
+    public ResponseEntity<ApiResponse> handleInvalidCode(InvalidConfirmationCodeException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiResponse(false, ex.getMessage()));
+    }
+
+    @ExceptionHandler(ConfirmationCodeExpiredException.class)
+    public ResponseEntity<ApiResponse> handleExpiredCode(ConfirmationCodeExpiredException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiResponse(false, ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handleGeneralException(Exception ex) {
         return ResponseEntity
