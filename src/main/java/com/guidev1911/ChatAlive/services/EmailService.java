@@ -1,5 +1,6 @@
 package com.guidev1911.ChatAlive.services;
 
+import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.EmailSendingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -32,7 +33,7 @@ public class EmailService {
             mailSender.send(mimeMessage);
 
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao enviar e-mail de confirmação de registro: " + e.getMessage());
+            throw new EmailSendingException("Erro ao enviar e-mail de confirmação de registro.", e);
         }
     }
 
@@ -55,7 +56,7 @@ public class EmailService {
             mailSender.send(mimeMessage);
 
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao enviar e-mail de redefinição de senha: " + e.getMessage());
+            throw new EmailSendingException("Erro ao enviar e-mail de redefinição de senha: ", e);
         }
     }
 }
