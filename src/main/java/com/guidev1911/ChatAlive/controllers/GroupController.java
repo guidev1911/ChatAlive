@@ -1,7 +1,7 @@
 package com.guidev1911.ChatAlive.controllers;
 
-import com.guidev1911.ChatAlive.dto.ApiResponse;
-import com.guidev1911.ChatAlive.dto.CreateGroupRequest;
+import com.guidev1911.ChatAlive.dto.responses.ApiResponse;
+import com.guidev1911.ChatAlive.dto.groups.CreateGroupRequest;
 import com.guidev1911.ChatAlive.model.Group;
 import com.guidev1911.ChatAlive.model.User;
 import com.guidev1911.ChatAlive.services.GroupService;

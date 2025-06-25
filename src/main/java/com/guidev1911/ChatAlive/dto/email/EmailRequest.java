@@ -1,4 +1,4 @@
-package com.guidev1911.ChatAlive.dto;
+package com.guidev1911.ChatAlive.dto.email;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

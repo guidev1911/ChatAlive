@@ -1,4 +1,4 @@
-package com.guidev1911.ChatAlive.dto;
+package com.guidev1911.ChatAlive.dto.users;
 
 import com.guidev1911.ChatAlive.Role.UserRole;
 

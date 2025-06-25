@@ -1,6 +1,6 @@
 package com.guidev1911.ChatAlive.controllers;
 
-import com.guidev1911.ChatAlive.dto.UserProfileDTO;
+import com.guidev1911.ChatAlive.dto.users.UserProfileDTO;
 import org.springframework.web.multipart.MultipartFile;
 import com.guidev1911.ChatAlive.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

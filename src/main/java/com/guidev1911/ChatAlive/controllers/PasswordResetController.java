@@ -1,8 +1,8 @@
 package com.guidev1911.ChatAlive.controllers;
 
-import com.guidev1911.ChatAlive.dto.ApiResponse;
-import com.guidev1911.ChatAlive.dto.EmailRequest;
-import com.guidev1911.ChatAlive.dto.PasswordResetRequest;
+import com.guidev1911.ChatAlive.dto.responses.ApiResponse;
+import com.guidev1911.ChatAlive.dto.email.EmailRequest;
+import com.guidev1911.ChatAlive.dto.email.PasswordResetRequest;
 import com.guidev1911.ChatAlive.services.PasswordResetService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

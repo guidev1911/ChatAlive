@@ -1,6 +1,6 @@
 package com.guidev1911.ChatAlive.exception.global;
 
-import com.guidev1911.ChatAlive.dto.ApiResponse;
+import com.guidev1911.ChatAlive.dto.responses.ApiResponse;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.ConfirmationCodeAlreadySentException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.ConfirmationCodeExpiredException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.EmailAlreadyRegisteredException;

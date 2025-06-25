@@ -1,4 +1,4 @@
-package com.guidev1911.ChatAlive.dto;
+package com.guidev1911.ChatAlive.dto.users;
 
 public class UserProfileDTO {
     private String name;

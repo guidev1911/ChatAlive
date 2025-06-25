@@ -1,6 +1,6 @@
 package com.guidev1911.ChatAlive.services;
 
-import com.guidev1911.ChatAlive.dto.UserProfileDTO;
+import com.guidev1911.ChatAlive.dto.users.UserProfileDTO;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.userExceptions.ImageStorageException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.userExceptions.UserNotFoundException;
 import com.guidev1911.ChatAlive.model.User;

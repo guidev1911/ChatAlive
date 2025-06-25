@@ -1,9 +1,9 @@
 package com.guidev1911.ChatAlive.controllers;
 
-import com.guidev1911.ChatAlive.dto.ApiResponse;
-import com.guidev1911.ChatAlive.dto.ConfirmCodeDTO;
-import com.guidev1911.ChatAlive.dto.TokenResponse;
-import com.guidev1911.ChatAlive.dto.UserDTO;
+import com.guidev1911.ChatAlive.dto.responses.ApiResponse;
+import com.guidev1911.ChatAlive.dto.email.ConfirmCodeDTO;
+import com.guidev1911.ChatAlive.dto.responses.TokenResponse;
+import com.guidev1911.ChatAlive.dto.users.UserDTO;
 import com.guidev1911.ChatAlive.secutiry.JwtUtil;
 import com.guidev1911.ChatAlive.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;

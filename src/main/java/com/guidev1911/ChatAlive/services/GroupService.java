@@ -2,7 +2,7 @@ package com.guidev1911.ChatAlive.services;
 
 import com.guidev1911.ChatAlive.Role.GroupPrivacy;
 import com.guidev1911.ChatAlive.Role.GroupRole;
-import com.guidev1911.ChatAlive.dto.ApiResponse;
+import com.guidev1911.ChatAlive.dto.responses.ApiResponse;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupAccessException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupAlreadyExistsException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupNotFoundException;

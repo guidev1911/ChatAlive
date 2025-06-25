@@ -1,4 +1,4 @@
-package com.guidev1911.ChatAlive.dto;
+package com.guidev1911.ChatAlive.dto.groups;
 
 import com.guidev1911.ChatAlive.Role.GroupPrivacy;
 

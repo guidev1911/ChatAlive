@@ -15,7 +15,7 @@ import com.guidev1911.ChatAlive.repository.PendingUserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import com.guidev1911.ChatAlive.dto.UserDTO;
+import com.guidev1911.ChatAlive.dto.users.UserDTO;
 import com.guidev1911.ChatAlive.model.User;
 import com.guidev1911.ChatAlive.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
