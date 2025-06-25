@@ -1,5 +1,8 @@
 package com.guidev1911.ChatAlive.services;
 
+import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.ConfirmationCodeExpiredException;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.InvalidConfirmationCodeException;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.userExceptions.UserNotFoundException;
 import com.guidev1911.ChatAlive.model.PasswordResetCode;
 import com.guidev1911.ChatAlive.model.User;
 import com.guidev1911.ChatAlive.repository.PasswordResetCodeRepository;
@@ -27,7 +30,7 @@ public class PasswordResetService {
 
     public void createPasswordResetCode(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
 
         String code = generateCode();
 
@@ -43,18 +46,18 @@ public class PasswordResetService {
     }
     public void resetPassword(String email, String code, String newPassword) {
         PasswordResetCode resetCode = resetCodeRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Código não encontrado."));
+                .orElseThrow(() -> new InvalidConfirmationCodeException("Código não encontrado."));
 
         if (!resetCode.getCode().equals(code)) {
-            throw new RuntimeException("Código inválido.");
+            throw new InvalidConfirmationCodeException("Código inválido.");
         }
 
         if (resetCode.getExpirationTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Código expirado.");
+            throw new ConfirmationCodeExpiredException("Código expirado.");
         }
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado."));
 
         user.setPassword(new BCryptPasswordEncoder().encode(newPassword));
         userRepository.save(user);

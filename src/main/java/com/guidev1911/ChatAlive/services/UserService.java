@@ -1,6 +1,8 @@
 package com.guidev1911.ChatAlive.services;
 
 import com.guidev1911.ChatAlive.dto.UserProfileDTO;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.userExceptions.ImageStorageException;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.userExceptions.UserNotFoundException;
 import com.guidev1911.ChatAlive.model.User;
 import com.guidev1911.ChatAlive.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,7 @@ public class UserService{
 
     public UserProfileDTO updateOwnProfile(String email, String name, String bio, MultipartFile photoFile) {
         User user = repository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
 
         if (name != null && !name.trim().isEmpty()) {
             user.setName(name);
@@ -47,7 +49,7 @@ public class UserService{
                 
                 user.setPhotoUrl("/uploads/" + fileName);
             } catch (IOException e) {
-                throw new RuntimeException("Erro ao salvar a imagem", e);
+                throw new ImageStorageException("Erro ao salvar a imagem", e);
             }
         }
 
