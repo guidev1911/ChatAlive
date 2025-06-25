@@ -19,6 +19,9 @@ target/
 *.iml
 *.ipr
 
+### Arquivos sensíveis ###
+.env
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
