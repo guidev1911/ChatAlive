@@ -9,6 +9,7 @@ import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.G
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupAlreadyExistsException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupNotFoundException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupRequestException;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.userExceptions.ImageStorageException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.userExceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiResponse> handleUserNotFound(UserNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse(false, ex.getMessage()));
+    }
+    @ExceptionHandler(ImageStorageException.class)
+    public ResponseEntity<ApiResponse> handleImageStorageException(ImageStorageException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ApiResponse(false, ex.getMessage()));
     }
 
