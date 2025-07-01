@@ -22,6 +22,16 @@ public class UserService{
     @Autowired
     private UserRepository repository;
 
+    public UserProfileDTO getAuthenticatedUserProfile(String email) {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado."));
+
+        return new UserProfileDTO(
+                user.getName(),
+                user.getBio(),
+                user.getPhotoUrl()
+        );
+    }
 
     public UserProfileDTO updateOwnProfile(String email, String name, String bio, MultipartFile photoFile) {
         User user = repository.findByEmail(email)
