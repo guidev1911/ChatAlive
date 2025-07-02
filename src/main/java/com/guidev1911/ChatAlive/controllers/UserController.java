@@ -1,5 +1,6 @@
 package com.guidev1911.ChatAlive.controllers;
 
+import com.guidev1911.ChatAlive.dto.responses.ApiResponse;
 import com.guidev1911.ChatAlive.dto.users.UserProfileDTO;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,27 +17,26 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
     @PutMapping("/profile/edit")
-    public ResponseEntity<?> updateOwnProfile(
+    public ResponseEntity<ApiResponse> updateOwnProfile(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String bio,
             @RequestParam(required = false) MultipartFile photoFile) {
-        try {
-            String email = userDetails.getUsername();
-            UserProfileDTO dto = userService.updateOwnProfile(email, name, bio, photoFile);
-            return ResponseEntity.ok(dto);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+
+        String email = userDetails.getUsername();
+        UserProfileDTO dto = userService.updateOwnProfile(email, name, bio, photoFile);
+
+        return ResponseEntity.ok(new ApiResponse(true, "Perfil atualizado com sucesso"));
     }
+
     @GetMapping("/profile/get")
-    public ResponseEntity<UserProfileDTO> getUserProfile(
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
+    public ResponseEntity<ApiResponse> getUserProfile(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
         UserProfileDTO profile = userService.getAuthenticatedUserProfile(userDetails.getUsername());
-        return ResponseEntity.ok(profile);
+        return ResponseEntity.ok(new ApiResponse(true, "Perfil obtido com sucesso"));
     }
-
-
 }
+

@@ -7,6 +7,7 @@ import com.guidev1911.ChatAlive.dto.users.UserDTO;
 import com.guidev1911.ChatAlive.secutiry.JwtUtil;
 import com.guidev1911.ChatAlive.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,8 +40,11 @@ public class AuthController {
     @PostMapping("/confirm")
     public ResponseEntity<ApiResponse> confirm(@RequestBody ConfirmCodeDTO confirmDTO) {
         authService.confirmEmail(confirmDTO.getEmail(), confirmDTO.getCode());
-        return ResponseEntity.ok(new ApiResponse(true,"Usuário registrado com sucesso!"));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new ApiResponse(true, "Usuário registrado com sucesso!"));
     }
+
 
 
 }
