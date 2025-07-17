@@ -32,11 +32,11 @@ public class UserController {
     }
 
     @GetMapping("/profile/get")
-    public ResponseEntity<ApiResponse> getUserProfile(
-            @AuthenticationPrincipal UserDetails userDetails) {
-
+    public ResponseEntity<UserProfileDTO> getUserProfile(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
         UserProfileDTO profile = userService.getAuthenticatedUserProfile(userDetails.getUsername());
-        return ResponseEntity.ok(new ApiResponse(true, "Perfil obtido com sucesso"));
+        return ResponseEntity.ok(profile);
     }
 }
 
