@@ -26,6 +26,7 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         jdbc.time_zone: America/Sao_Paulo
 server:
+  address: 0.0.0.0
   port: 8080
 
 jwt:

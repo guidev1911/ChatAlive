@@ -17,7 +17,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Size(max = 32, message = "O nome deve ter no máximo 32 caracteres.")
     private String name;
 
     @Column(nullable = false, unique = true)
