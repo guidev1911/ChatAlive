@@ -29,7 +29,8 @@ public class UserService{
         return new UserProfileDTO(
                 user.getName(),
                 user.getBio(),
-                user.getPhotoUrl()
+                user.getPhotoUrl(),
+                user.getEmail()
         );
     }
 

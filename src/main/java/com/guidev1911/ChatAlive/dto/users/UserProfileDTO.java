@@ -3,7 +3,16 @@ package com.guidev1911.ChatAlive.dto.users;
 public class UserProfileDTO {
     private String name;
     private String bio;
+    private String email;
     private String photoUrl;
+
+
+    public UserProfileDTO(String name, String bio, String photoUrl, String email) {
+        this.name = name;
+        this.bio = bio;
+        this.photoUrl = photoUrl;
+        this.email = email;
+    }
 
     public UserProfileDTO(String name, String bio, String photoUrl) {
         this.name = name;
@@ -25,6 +34,10 @@ public class UserProfileDTO {
 
     public void setBio(String bio) {
         this.bio = bio;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public String getPhotoUrl() {

@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Table;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 
@@ -26,6 +27,8 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.USER;
+
+    @Size(max = 139, message = "A bio deve ter no máximo 139 caracteres.")
     private String bio;
 
     @Column(name = "photo_Url")
