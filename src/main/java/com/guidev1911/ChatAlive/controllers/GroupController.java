@@ -20,12 +20,17 @@ public class GroupController {
     private GroupService groupService;
     @PostMapping
     public ResponseEntity<ApiResponse> createGroup(@RequestBody CreateGroupRequest request) {
-        groupService.createGroup(request.getName(), request.getPrivacy());
+        groupService.createGroup(
+                request.getName(),
+                request.getDescription(),
+                request.getPrivacy()
+        );
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new ApiResponse(true, "Grupo criado com sucesso"));
     }
+
     @PostMapping("/{groupId}/join")
     public ResponseEntity<ApiResponse> joinGroup(
             @PathVariable Long groupId,

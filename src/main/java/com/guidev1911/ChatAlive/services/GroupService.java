@@ -28,7 +28,7 @@ public class GroupService {
     @Autowired
     private GroupMembershipRepository membershipRepository;
 
-    public Group createGroup(String name, GroupPrivacy privacy) {
+    public Group createGroup(String name, String description, GroupPrivacy privacy) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User creator = VerificationByEmail(email);
 
@@ -38,6 +38,7 @@ public class GroupService {
 
         Group group = new Group();
         group.setName(name);
+        group.setDescription(description);
         group.setPrivacy(privacy);
         group.setCreator(creator);
 

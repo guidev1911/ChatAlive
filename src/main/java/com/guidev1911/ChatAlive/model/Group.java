@@ -1,8 +1,6 @@
 package com.guidev1911.ChatAlive.model;
 
 import com.guidev1911.ChatAlive.Role.GroupPrivacy;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -19,6 +17,9 @@ public class Group {
 
     @Column(unique = true, nullable = false)
     private String name;
+
+    @Column(length = 500)
+    private String description;
 
     @Enumerated(EnumType.STRING)
     private GroupPrivacy privacy;
@@ -47,6 +48,14 @@ public class Group {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public GroupPrivacy getPrivacy() {
@@ -78,11 +87,16 @@ public class Group {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Group group = (Group) o;
-        return Objects.equals(getId(), group.getId()) && Objects.equals(getName(), group.getName()) && getPrivacy() == group.getPrivacy() && Objects.equals(getCreator(), group.getCreator()) && Objects.equals(getMembers(), group.getMembers());
+        return Objects.equals(getId(), group.getId()) &&
+                Objects.equals(getName(), group.getName()) &&
+                Objects.equals(getDescription(), group.getDescription()) &&
+                getPrivacy() == group.getPrivacy() &&
+                Objects.equals(getCreator(), group.getCreator()) &&
+                Objects.equals(getMembers(), group.getMembers());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getName(), getPrivacy(), getCreator(), getMembers());
+        return Objects.hash(getId(), getName(), getDescription(), getPrivacy(), getCreator(), getMembers());
     }
 }
