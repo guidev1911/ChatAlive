@@ -1,5 +1,6 @@
 package com.guidev1911.ChatAlive.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.guidev1911.ChatAlive.Role.UserRole;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,9 +21,11 @@ public class User {
     @Size(max = 32, message = "O nome deve ter no máximo 32 caracteres.")
     private String name;
 
+    @JsonIgnore
     @Column(nullable = false, unique = true)
     private String email;
 
+    @JsonIgnore
     private String password;
 
     @Enumerated(EnumType.STRING)

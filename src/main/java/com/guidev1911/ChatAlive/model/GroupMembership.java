@@ -1,5 +1,6 @@
 package com.guidev1911.ChatAlive.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.guidev1911.ChatAlive.Role.GroupRole;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,6 +15,7 @@ public class GroupMembership {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne
     private Group group;
 

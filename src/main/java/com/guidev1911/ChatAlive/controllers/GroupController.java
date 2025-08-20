@@ -6,6 +6,10 @@ import com.guidev1911.ChatAlive.model.Group;
 import com.guidev1911.ChatAlive.model.User;
 import com.guidev1911.ChatAlive.services.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,8 +20,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/groups")
 public class GroupController {
 
-    @Autowired
-    private GroupService groupService;
+    private final GroupService groupService;
+
+    public GroupController(GroupService groupService) {
+        this.groupService = groupService;
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<Group>> getAllGroups(
+            @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<Group> groups = groupService.getAllGroups(pageable);
+        return ResponseEntity.ok(groups);
+    }
     @PostMapping
     public ResponseEntity<ApiResponse> createGroup(@RequestBody CreateGroupRequest request) {
         groupService.createGroup(

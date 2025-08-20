@@ -15,18 +15,29 @@ import com.guidev1911.ChatAlive.repository.GroupMembershipRepository;
 import com.guidev1911.ChatAlive.repository.GroupRepository;
 import com.guidev1911.ChatAlive.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GroupService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private GroupRepository groupRepository;
-    @Autowired
-    private GroupMembershipRepository membershipRepository;
+    private final UserRepository userRepository;
+    private final GroupRepository groupRepository;
+    private final GroupMembershipRepository membershipRepository;
+
+    public GroupService(UserRepository userRepository,
+                        GroupRepository groupRepository,
+                        GroupMembershipRepository membershipRepository) {
+        this.userRepository = userRepository;
+        this.groupRepository = groupRepository;
+        this.membershipRepository = membershipRepository;
+    }
+
+    public Page<Group> getAllGroups(Pageable pageable) {
+        return groupRepository.findAll(pageable);
+    }
 
     public Group createGroup(String name, String description, GroupPrivacy privacy) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
