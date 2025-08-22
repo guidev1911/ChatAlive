@@ -28,8 +28,9 @@ public class GroupController {
 
     @GetMapping
     public ResponseEntity<Page<Group>> getAllGroups(
+            @RequestParam(required = false) String name,
             @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
-        Page<Group> groups = groupService.getAllGroups(pageable);
+        Page<Group> groups = groupService.getAllGroups(name, pageable);
         return ResponseEntity.ok(groups);
     }
     @PostMapping

@@ -35,7 +35,10 @@ public class GroupService {
         this.membershipRepository = membershipRepository;
     }
 
-    public Page<Group> getAllGroups(Pageable pageable) {
+    public Page<Group> getAllGroups(String name, Pageable pageable) {
+        if (name != null && !name.isBlank()) {
+            return groupRepository.findByNameContainingIgnoreCase(name, pageable);
+        }
         return groupRepository.findAll(pageable);
     }
 
