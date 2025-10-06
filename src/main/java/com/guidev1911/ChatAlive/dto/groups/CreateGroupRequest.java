@@ -6,6 +6,7 @@ public class CreateGroupRequest {
     private String name;
     private String description;
     private GroupPrivacy privacy;
+    String profileImageUrl;
 
     public String getName() {
         return name;
@@ -30,4 +31,12 @@ public class CreateGroupRequest {
     public void setPrivacy(GroupPrivacy privacy) {
         this.privacy = privacy;
     }
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
 }

@@ -24,6 +24,9 @@ public class Group {
     @Enumerated(EnumType.STRING)
     private GroupPrivacy privacy;
 
+    @Column(name = "profile_image_url")
+    private String groupImageUrl;
+
     @ManyToOne
     @JoinColumn(name = "creator_id")
     private User creator;
@@ -80,6 +83,14 @@ public class Group {
 
     public void setMembers(List<GroupMembership> members) {
         this.members = members;
+    }
+
+    public String getGroupImageUrl() {
+        return groupImageUrl;
+    }
+
+    public void setGroupImageUrl(String groupImageUrl) {
+        this.groupImageUrl = groupImageUrl;
     }
 
     @Override

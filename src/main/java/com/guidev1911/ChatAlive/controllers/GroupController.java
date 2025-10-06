@@ -1,5 +1,6 @@
 package com.guidev1911.ChatAlive.controllers;
 
+import com.guidev1911.ChatAlive.Role.GroupPrivacy;
 import com.guidev1911.ChatAlive.dto.responses.ApiResponse;
 import com.guidev1911.ChatAlive.dto.groups.CreateGroupRequest;
 import com.guidev1911.ChatAlive.model.Group;
@@ -11,10 +12,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/groups")
@@ -36,14 +39,14 @@ public class GroupController {
         return ResponseEntity.ok(groups);
     }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse> createGroup(@RequestBody CreateGroupRequest request) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse> createGroup(
+            @RequestParam String name,
+            @RequestParam(required = false) String description,
+            @RequestParam GroupPrivacy privacy,
+            @RequestParam(required = false) MultipartFile photoFile) {
 
-        groupService.createGroup(
-                request.getName(),
-                request.getDescription(),
-                request.getPrivacy()
-        );
+        groupService.createGroup(name, description, privacy, photoFile);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

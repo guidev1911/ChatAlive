@@ -2,26 +2,32 @@ package com.guidev1911.ChatAlive.services;
 
 import com.guidev1911.ChatAlive.Role.GroupPrivacy;
 import com.guidev1911.ChatAlive.Role.GroupRole;
-import com.guidev1911.ChatAlive.dto.groups.GroupDTO;
 import com.guidev1911.ChatAlive.dto.responses.ApiResponse;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupAccessException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupAlreadyExistsException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupNotFoundException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupRequestException;
+import com.guidev1911.ChatAlive.exception.customizedExceptions.userExceptions.ImageStorageException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.userExceptions.UserNotFoundException;
 import com.guidev1911.ChatAlive.mapper.GroupMapper;
-import com.guidev1911.ChatAlive.mapper.GroupMembershipMapper;
 import com.guidev1911.ChatAlive.model.Group;
 import com.guidev1911.ChatAlive.model.GroupMembership;
 import com.guidev1911.ChatAlive.model.User;
 import com.guidev1911.ChatAlive.repository.GroupMembershipRepository;
 import com.guidev1911.ChatAlive.repository.GroupRepository;
 import com.guidev1911.ChatAlive.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
+
 
 @Service
 public class GroupService {
@@ -48,7 +54,7 @@ public class GroupService {
         return groupRepository.findAll(pageable);
     }
 
-    public GroupDTO createGroup(String name, String description, GroupPrivacy privacy) {
+    public Group createGroup(String name, String description, GroupPrivacy privacy, MultipartFile photoFile) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User creator = VerificationByEmail(email);
 
@@ -62,6 +68,24 @@ public class GroupService {
         group.setPrivacy(privacy);
         group.setCreator(creator);
 
+        if (photoFile != null && !photoFile.isEmpty()) {
+            try {
+                String fileName = UUID.randomUUID() + "_" + photoFile.getOriginalFilename();
+                Path uploadPath = Paths.get("uploads/groups");
+
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+
+                Path filePath = uploadPath.resolve(fileName);
+                Files.copy(photoFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+                group.setGroupImageUrl("/uploads/groups/" + fileName);
+            } catch (IOException e) {
+                throw new ImageStorageException("Erro ao salvar a imagem do grupo", e);
+            }
+        }
+
         group = groupRepository.save(group);
 
         GroupMembership membership = new GroupMembership();
@@ -69,10 +93,9 @@ public class GroupService {
         membership.setUser(creator);
         membership.setRole(GroupRole.CREATOR);
         membership.setPendingRequest(false);
-
         membershipRepository.save(membership);
 
-        return groupMapper.toDTO(group);
+        return group;
     }
 
     public ApiResponse joinGroup(String email, Long groupId) {

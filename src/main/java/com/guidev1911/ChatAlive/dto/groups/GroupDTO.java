@@ -9,5 +9,6 @@ public record GroupDTO(
         String description,
         String privacy,
         String creatorEmail,
+        String groupImageUrl,
         List<GroupMembershipDTO> members
 ) {}
