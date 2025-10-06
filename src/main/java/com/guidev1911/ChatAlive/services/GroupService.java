@@ -2,12 +2,15 @@ package com.guidev1911.ChatAlive.services;
 
 import com.guidev1911.ChatAlive.Role.GroupPrivacy;
 import com.guidev1911.ChatAlive.Role.GroupRole;
+import com.guidev1911.ChatAlive.dto.groups.GroupDTO;
 import com.guidev1911.ChatAlive.dto.responses.ApiResponse;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupAccessException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupAlreadyExistsException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupNotFoundException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupRequestException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.userExceptions.UserNotFoundException;
+import com.guidev1911.ChatAlive.mapper.GroupMapper;
+import com.guidev1911.ChatAlive.mapper.GroupMembershipMapper;
 import com.guidev1911.ChatAlive.model.Group;
 import com.guidev1911.ChatAlive.model.GroupMembership;
 import com.guidev1911.ChatAlive.model.User;
@@ -26,13 +29,16 @@ public class GroupService {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final GroupMembershipRepository membershipRepository;
+    private final GroupMapper groupMapper;
 
     public GroupService(UserRepository userRepository,
                         GroupRepository groupRepository,
-                        GroupMembershipRepository membershipRepository) {
+                        GroupMembershipRepository membershipRepository,
+                        GroupMapper groupMapper) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.membershipRepository = membershipRepository;
+        this.groupMapper = groupMapper;
     }
 
     public Page<Group> getAllGroups(String name, Pageable pageable) {
@@ -42,7 +48,7 @@ public class GroupService {
         return groupRepository.findAll(pageable);
     }
 
-    public Group createGroup(String name, String description, GroupPrivacy privacy) {
+    public GroupDTO createGroup(String name, String description, GroupPrivacy privacy) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User creator = VerificationByEmail(email);
 
@@ -66,7 +72,7 @@ public class GroupService {
 
         membershipRepository.save(membership);
 
-        return group;
+        return groupMapper.toDTO(group);
     }
 
     public ApiResponse joinGroup(String email, Long groupId) {

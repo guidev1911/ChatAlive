@@ -30,11 +30,15 @@ public class GroupController {
     public ResponseEntity<Page<Group>> getAllGroups(
             @RequestParam(required = false) String name,
             @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+
         Page<Group> groups = groupService.getAllGroups(name, pageable);
+
         return ResponseEntity.ok(groups);
     }
+
     @PostMapping
     public ResponseEntity<ApiResponse> createGroup(@RequestBody CreateGroupRequest request) {
+
         groupService.createGroup(
                 request.getName(),
                 request.getDescription(),
