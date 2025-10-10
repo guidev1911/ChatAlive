@@ -10,6 +10,7 @@ import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.C
 import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.ConfirmationCodeExpiredException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.EmailAlreadyRegisteredException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.emailExceptions.InvalidConfirmationCodeException;
+import com.guidev1911.ChatAlive.mapper.UserMapper;
 import com.guidev1911.ChatAlive.model.PendingUser;
 import com.guidev1911.ChatAlive.repository.PendingUserRepository;
 import jakarta.transaction.Transactional;
@@ -24,7 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthService implements UserDetailsService{
+public class AuthService implements UserDetailsService {
 
     @Autowired
     private UserRepository repository;
@@ -38,22 +39,23 @@ public class AuthService implements UserDetailsService{
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private UserMapper userMapper;
+
     public void register(UserDTO dto) {
         if (repository.existsByEmail(dto.email)) {
             throw new EmailAlreadyRegisteredException("Email já cadastrado.");
         }
 
         if (pendingUserRepository.findByEmail(dto.email).isPresent()) {
-            throw new ConfirmationCodeAlreadySentException("Já existe um código de confirmação pendente para esse e-mail, Aguarde 5 minutos e tente novamente.");
+            throw new ConfirmationCodeAlreadySentException("Já existe um código de confirmação pendente para esse e-mail. Aguarde 5 minutos e tente novamente.");
         }
 
         String confirmationCode = String.valueOf(new Random().nextInt(900000) + 100000);
 
-        PendingUser pending = new PendingUser();
-        pending.setName(dto.name);
-        pending.setEmail(dto.email);
-        pending.setEncodedPassword(encoder.encode(dto.password));
+        PendingUser pending = userMapper.toPendingUser(dto);
         pending.setRole(dto.role != null ? dto.role : UserRole.USER);
+        pending.setEncodedPassword(encoder.encode(dto.password));
         pending.setConfirmationCode(confirmationCode);
         pending.setExpirationTime(LocalDateTime.now().plusMinutes(5));
 
@@ -71,25 +73,19 @@ public class AuthService implements UserDetailsService{
             throw new ConfirmationCodeExpiredException("Código expirado.");
         }
 
-        User user = new User(pending.getName(), pending.getEmail(), pending.getEncodedPassword(), pending.getRole());
+        User user = userMapper.toUser(pending);
         pendingUserRepository.deleteByEmail(email);
         return repository.save(user);
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Optional<User> userOpt = repository.findByEmail(email);
-
-        if (userOpt.isEmpty()) {
-            throw new UsernameNotFoundException("Usuário não encontrado");
-        }
-
-        User user = userOpt.get();
-
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                Collections.singletonList(() -> "ROLE_" + user.getRole().name())
-        );
+        return repository.findByEmail(email)
+                .map(user -> new org.springframework.security.core.userdetails.User(
+                        user.getEmail(),
+                        user.getPassword(),
+                        Collections.singletonList(() -> "ROLE_" + user.getRole().name())
+                ))
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
     }
 }
