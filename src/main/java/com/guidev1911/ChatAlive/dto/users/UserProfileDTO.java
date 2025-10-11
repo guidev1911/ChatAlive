@@ -7,16 +7,10 @@ public class UserProfileDTO {
     private String photoUrl;
 
 
-    public UserProfileDTO(String name, String bio, String photoUrl, String email) {
+    public UserProfileDTO(String name, String bio, String email, String photoUrl) {
         this.name = name;
         this.bio = bio;
-        this.photoUrl = photoUrl;
         this.email = email;
-    }
-
-    public UserProfileDTO(String name, String bio, String photoUrl) {
-        this.name = name;
-        this.bio = bio;
         this.photoUrl = photoUrl;
     }
 

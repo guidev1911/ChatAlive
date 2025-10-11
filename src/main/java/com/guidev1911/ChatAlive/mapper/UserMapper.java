@@ -18,6 +18,8 @@ public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", source = "encodedPassword")
+    @Mapping(target = "bio", ignore = true)
+    @Mapping(target = "photoUrl", ignore = true)
     User toUser(PendingUser pendingUser);
 
     @Mapping(target = "name", source = "name")
@@ -26,3 +28,4 @@ public interface UserMapper {
     @Mapping(target = "email", source = "email")
     UserProfileDTO toProfileDTO(User user);
 }
+
