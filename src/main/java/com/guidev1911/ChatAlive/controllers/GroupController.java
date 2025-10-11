@@ -1,6 +1,7 @@
 package com.guidev1911.ChatAlive.controllers;
 
 import com.guidev1911.ChatAlive.Role.GroupPrivacy;
+import com.guidev1911.ChatAlive.dto.groups.GroupDTO;
 import com.guidev1911.ChatAlive.dto.responses.ApiResponse;
 import com.guidev1911.ChatAlive.dto.groups.CreateGroupRequest;
 import com.guidev1911.ChatAlive.model.Group;
@@ -19,6 +20,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/groups")
 public class GroupController {
@@ -36,6 +39,11 @@ public class GroupController {
 
         Page<Group> groups = groupService.getAllGroups(name, pageable);
 
+        return ResponseEntity.ok(groups);
+    }
+    @GetMapping("/my-groups")
+    public ResponseEntity<List<GroupDTO>> getUserGroups() {
+        List<GroupDTO> groups = groupService.getGroupsForAuthenticatedUser();
         return ResponseEntity.ok(groups);
     }
 

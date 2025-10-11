@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface GroupRepository extends JpaRepository<Group, Long> {
     Optional<Group> findByName(String name);
     Page<Group> findByNameContainingIgnoreCase(String name, Pageable pageable);
+    List<Group> findByCreator(User creator);
 
 }
 

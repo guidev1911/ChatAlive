@@ -2,6 +2,7 @@ package com.guidev1911.ChatAlive.services;
 
 import com.guidev1911.ChatAlive.Role.GroupPrivacy;
 import com.guidev1911.ChatAlive.Role.GroupRole;
+import com.guidev1911.ChatAlive.dto.groups.GroupDTO;
 import com.guidev1911.ChatAlive.dto.responses.ApiResponse;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupAccessException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.groupExceptions.GroupAlreadyExistsException;
@@ -26,7 +27,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -52,6 +56,24 @@ public class GroupService {
             return groupRepository.findByNameContainingIgnoreCase(name, pageable);
         }
         return groupRepository.findAll(pageable);
+    }
+    public List<GroupDTO> getGroupsForAuthenticatedUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = VerificationByEmail(email);
+
+        List<Group> createdGroups = groupRepository.findByCreator(user);
+
+        List<GroupMembership> memberships = membershipRepository.findByUserAndPendingRequestFalse(user);
+        List<Group> memberGroups = memberships.stream()
+                .map(GroupMembership::getGroup)
+                .filter(g -> !g.getCreator().getId().equals(user.getId()))
+                .collect(Collectors.toList());
+
+        List<Group> allGroups = new ArrayList<>();
+        allGroups.addAll(createdGroups);
+        allGroups.addAll(memberGroups);
+
+        return groupMapper.toDTOList(allGroups);
     }
 
     public Group createGroup(String name, String description, GroupPrivacy privacy, MultipartFile photoFile) {
