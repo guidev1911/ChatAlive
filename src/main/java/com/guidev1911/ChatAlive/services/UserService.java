@@ -3,6 +3,7 @@ package com.guidev1911.ChatAlive.services;
 import com.guidev1911.ChatAlive.dto.users.UserProfileDTO;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.userExceptions.ImageStorageException;
 import com.guidev1911.ChatAlive.exception.customizedExceptions.userExceptions.UserNotFoundException;
+import com.guidev1911.ChatAlive.mapper.UserMapper;
 import com.guidev1911.ChatAlive.model.User;
 import com.guidev1911.ChatAlive.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,47 +18,35 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @Service
-public class UserService{
+public class UserService {
 
-    @Autowired
-    private UserRepository repository;
+    private final UserRepository repository;
+    private final UserMapper mapper;
+
+    public UserService(UserRepository repository, UserMapper mapper) {
+        this.repository = repository;
+        this.mapper = mapper;
+    }
 
     public UserProfileDTO getAuthenticatedUserProfile(String email) {
         User user = repository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado."));
-
-        return new UserProfileDTO(
-                user.getName(),
-                user.getBio(),
-                user.getPhotoUrl(),
-                user.getEmail()
-        );
+        return mapper.toProfileDTO(user);
     }
 
     public UserProfileDTO updateOwnProfile(String email, String name, String bio, MultipartFile photoFile) {
         User user = repository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
 
-        if (name != null && !name.trim().isEmpty()) {
-            user.setName(name);
-        }
-
-        if (bio != null && !bio.trim().isEmpty()) {
-            user.setBio(bio);
-        }
+        if (name != null && !name.trim().isEmpty()) user.setName(name);
+        if (bio != null && !bio.trim().isEmpty()) user.setBio(bio);
 
         if (photoFile != null && !photoFile.isEmpty()) {
             try {
                 String fileName = UUID.randomUUID() + "_" + photoFile.getOriginalFilename();
                 Path uploadPath = Paths.get("uploads");
-
-                if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath);
-                }
-
-                Path filePath = uploadPath.resolve(fileName);
-                Files.copy(photoFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-                
+                if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
+                Files.copy(photoFile.getInputStream(), uploadPath.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
                 user.setPhotoUrl("/uploads/" + fileName);
             } catch (IOException e) {
                 throw new ImageStorageException("Erro ao salvar a imagem", e);
@@ -65,7 +54,6 @@ public class UserService{
         }
 
         repository.save(user);
-
-        return new UserProfileDTO(user.getName(), user.getBio(), user.getPhotoUrl());
+        return mapper.toProfileDTO(user);
     }
 }
