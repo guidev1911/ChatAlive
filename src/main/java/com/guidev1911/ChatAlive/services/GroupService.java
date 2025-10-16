@@ -18,6 +18,7 @@ import com.guidev1911.ChatAlive.repository.GroupMembershipRepository;
 import com.guidev1911.ChatAlive.repository.GroupRepository;
 import com.guidev1911.ChatAlive.repository.UserRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -57,7 +58,7 @@ public class GroupService {
         }
         return groupRepository.findAll(pageable);
     }
-    public List<GroupDTO> getGroupsForAuthenticatedUser() {
+    public Page<GroupDTO> getGroupsForAuthenticatedUser(Pageable pageable) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = VerificationByEmail(email);
 
@@ -67,13 +68,18 @@ public class GroupService {
         List<Group> memberGroups = memberships.stream()
                 .map(GroupMembership::getGroup)
                 .filter(g -> !g.getCreator().getId().equals(user.getId()))
-                .collect(Collectors.toList());
+                .toList();
 
         List<Group> allGroups = new ArrayList<>();
         allGroups.addAll(createdGroups);
         allGroups.addAll(memberGroups);
 
-        return groupMapper.toDTOList(allGroups);
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), allGroups.size());
+        List<Group> pagedGroups = allGroups.subList(start, end);
+
+        List<GroupDTO> dtoList = groupMapper.toDTOList(pagedGroups);
+        return new PageImpl<>(dtoList, pageable, allGroups.size());
     }
 
     public Group createGroup(String name, String description, GroupPrivacy privacy, MultipartFile photoFile) {

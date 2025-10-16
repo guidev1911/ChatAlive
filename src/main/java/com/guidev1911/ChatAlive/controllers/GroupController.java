@@ -42,8 +42,10 @@ public class GroupController {
         return ResponseEntity.ok(groups);
     }
     @GetMapping("/my-groups")
-    public ResponseEntity<List<GroupDTO>> getUserGroups() {
-        List<GroupDTO> groups = groupService.getGroupsForAuthenticatedUser();
+    public ResponseEntity<Page<GroupDTO>> getUserGroups(
+            @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+
+        Page<GroupDTO> groups = groupService.getGroupsForAuthenticatedUser(pageable);
         return ResponseEntity.ok(groups);
     }
 
